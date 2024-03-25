@@ -1,2 +1,7 @@
 ### NOTE: 
 The data can be downloaded at [Divvy Data](https://divvy-tripdata.s3.amazonaws.com/index.html), and to run the R project place it in this path.
+
+Data used: 
+
+- Divvy_Trips_2019_Q1.csv
+- Divvy_Trips_2020_Q1.csv
