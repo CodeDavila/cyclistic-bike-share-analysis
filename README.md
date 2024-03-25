@@ -1,7 +1,7 @@
 # Cyclistic Bike-Share Analysis
 
 ## Description
-Analyzing bike-share usage patterns at Cyclistic to optimize marketing strategies & maximize revenue. Project for Google Data Analytics Certification.
+Analyzing bike-share usage patterns at Cyclistic to optimize marketing strategies & maximize revenue. Project for Google Data Analytics Certification. [Case Study.pdf](Case%20Study%20.pdf).
 
 ## Table of Contents
 - [Installation](#installation)
