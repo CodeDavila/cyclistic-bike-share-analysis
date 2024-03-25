@@ -1,0 +1,289 @@
+---
+title: "Case Study: Bike Share"
+author: "David Davila"
+date: "2024-03-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# Load necessary libraries
+library(tidyverse)  # For data wrangling
+library(conflicted) # To manage conflicts
+library(ggplot2)    # To do visualizations
+
+# Set dplyr::filter and dplyr::lag as the default choices
+conflict_prefer("filter", "dplyr")
+conflict_prefer("lag", "dplyr")
+```
+
+## Step 1: Collect the Data
+
+```{r}
+# Read data files for Q1 2019 and Q1 2020
+q1_2019 <- read_csv("../Data/Divvy_Trips_2019_Q1.csv")
+q1_2020 <- read_csv("../Data/Divvy_Trips_2020_Q1.csv")
+```
+
+## Step 2: Wrangle Data and Combine into a Single File
+
+### Compare Column Names of Each File
+
+```{r}
+# Display and compare column names
+colnames(q1_2019) %>% sort()
+colnames(q1_2020) %>% sort()
+```
+
+### Rename q1_2019 Columns to Match q1_2020
+
+```{r}
+# Rename q1_2019 columns for consistency
+q1_2019 <- rename(q1_2019,
+                   ride_id = trip_id,
+                   rideable_type = bikeid,
+                   started_at = start_time,
+                   ended_at = end_time,
+                   start_station_name = from_station_name,
+                   start_station_id = from_station_id,
+                   end_station_name = to_station_name,
+                   end_station_id = to_station_id,
+                   member_casual = usertype)
+```
+
+### Inspect Dataframes for Inconsistencies
+
+```{r}
+# Display structure of dataframes
+str(q1_2019)
+str(q1_2020)
+```
+
+### Convert ride_id and rideable_type to Character
+
+```{r}
+# Convert certain columns to character type
+q1_2019 <- mutate(q1_2019,
+                  ride_id = as.character(ride_id),
+                  rideable_type = as.character(rideable_type))
+```
+
+### Combine Data Frames into One
+
+```{r}
+# Combine individual quarters into one dataframe
+all_trips <- bind_rows(q1_2019, q1_2020)
+```
+
+### Remove Unnecessary Fields
+
+```{r}
+# Remove unnecessary columns
+all_trips <- all_trips %>%  
+  select(-c(start_lat, start_lng, end_lat, end_lng, birthyear, gender, tripduration, rideable_type))
+```
+
+### Check the Final Data Set
+
+```{r}
+# Display structure of the combined dataframe
+str(all_trips)
+```
+
+## Step 3: Clean Up and Add Data for Analysis
+
+### Inspect the New Table
+
+```{r}
+# Display summary statistics and structure of the dataframe
+summary(all_trips)
+str(all_trips)
+```
+
+### Fix Label Inconsistencies in "member_casual" Column
+
+```{r}
+# Consolidate labels in "member_casual" column
+unique(all_trips$member_casual)
+table(all_trips$member_casual)
+
+# Reassign desired values for consistency
+all_trips <-  all_trips %>% 
+  mutate(member_casual = recode(member_casual,
+                                "Subscriber" = "member",
+                                "Customer" = "casual"))
+
+# Check reassigned values
+unique(all_trips$member_casual)
+table(all_trips$member_casual)
+```
+
+### Add Additional Columns for Aggregation
+
+```{r}
+# Add columns for date, month, day, year, and day of week
+all_trips <- all_trips %>%
+  mutate(date = as.Date(started_at),
+         month = format(date, "%m"),
+         day = format(date, "%d"),
+         year = format(date, "%Y"),
+         day_of_week = format(date, "%A"))
+```
+
+### Add Calculated Field for Ride Length
+
+```{r}
+# Calculate ride length and convert to numeric
+all_trips$ride_length <- as.numeric(difftime(all_trips$ended_at, all_trips$started_at, units = "mins"))
+```
+
+### Remove Rides with Negative Trip Durations
+
+```{r}
+# Remove rides with negative trip durations or from HQ QR station
+all_trips <- all_trips %>% 
+  filter(!(start_station_name == "HQ QR" | ride_length < 0))
+str(all_trips)
+summary(all_trips)
+```
+
+### Look for duplicates in all_trips
+
+```{r}
+duplicates <- all_trips[duplicated(all_trips), ]
+# Show the duplicate rows
+print(duplicates)
+```
+
+## Conduct Descriptive Analysis
+
+### How often do annual members and casual riders use Cyclistic bikes?
+
+```{r}
+# Calculate usage frequency for annual members and casual riders
+usage_frequency <- all_trips %>%
+  group_by(member_casual) %>%
+  summarize(rides_count = n())
+# Display the usage frequency
+usage_frequency
+```
+
+### What is the average duration of trips for annual members and casual riders? Do they tend to take shorter or longer rides on average?
+
+```{r}
+# Descriptive analysis on ride_length
+summary_duration <- summary(all_trips$ride_length)
+summary_duration
+
+# Compare members and casual users
+avg_duration_by_type <- all_trips %>%
+  group_by(member_casual) %>%
+  summarize(mean_duration = mean(ride_length),
+            median_duration = median(ride_length),
+            max_duration = max(ride_length),
+            min_duration = min(ride_length))
+avg_duration_by_type
+
+# Analyze ridership data by type and weekday
+ridership_analysis <- all_trips %>%
+  mutate(weekday = ordered(weekdays(started_at), levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))) %>%
+  group_by(member_casual, weekday) %>%
+  summarize(number_of_rides = n(),
+            average_duration = mean(ride_length))
+ridership_analysis
+
+# Create a visualization for average duration
+ggplot(ridership_analysis, aes(x = weekday, y = average_duration, fill = member_casual)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black", width = 0.7) +
+  scale_fill_manual(values = c("#FF6F61", "#6B5B95")) +
+  labs(title = "Average Trip Duration by Weekday and User Type",
+       x = "Weekday",
+       y = "Average Duration (minutes)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major.y = element_line(color = "gray", linetype = "dotted"),
+        legend.title = element_blank())
+```
+
+### Are there particular routes or stations that are more popular among annual members or casual riders?
+
+```{r}
+# Group the data by user type and start station
+start_station_counts <- all_trips %>%
+  group_by(member_casual, start_station_name) %>%
+  summarize(num_rides = n()) %>%
+  arrange(member_casual, desc(num_rides))
+
+# Group the data by user type and end station
+end_station_counts <- all_trips %>%
+  group_by(member_casual, end_station_name) %>%
+  summarize(num_rides = n()) %>%
+  arrange(member_casual, desc(num_rides))
+
+# Filter the top 10 start and end stations for annual members
+top_start_stations_member <- start_station_counts %>%
+  filter(member_casual == "member") %>%
+  top_n(10, num_rides)
+
+top_end_stations_member <- end_station_counts %>%
+  filter(member_casual == "member") %>%
+  top_n(10, num_rides)
+
+# Filter the top 10 start and end stations for casual riders
+top_start_stations_casual <- start_station_counts %>%
+  filter(member_casual == "casual") %>%
+  top_n(10, num_rides)
+
+top_end_stations_casual <- end_station_counts %>%
+  filter(member_casual == "casual") %>%
+  top_n(10, num_rides)
+
+# Top start stations for annual members
+ggplot(top_start_stations_member, aes(x = reorder(start_station_name, num_rides), y = num_rides)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Top Start Stations for Annual Members",
+       x = "Station Name",
+       y = "Number of Rides") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Top end stations for annual members
+ggplot(top_end_stations_member, aes(x = reorder(end_station_name, num_rides), y = num_rides)) +
+  geom_bar(stat = "identity", fill = "lightgreen") +
+  labs(title = "Top End Stations for Annual Members",
+       x = "Station Name",
+       y = "Number of Rides") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Top start stations for casual riders
+ggplot(top_start_stations_casual, aes(x = reorder(start_station_name, num_rides), y = num_rides)) +
+  geom_bar(stat = "identity", fill = "salmon") +
+  labs(title = "Top Start Stations for Casual Riders",
+       x = "Station Name",
+       y = "Number of Rides") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Top end stations for casual riders
+ggplot(top_end_stations_casual, aes(x = reorder(end_station_name, num_rides), y = num_rides)) +
+  geom_bar(stat = "identity", fill = "lightcoral") +
+  labs(title = "Top End Stations for Casual Riders",
+       x = "Station Name",
+       y = "Number of Rides") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Do they tend to ride in different areas of the city?
+
+```{r}
+# Combine both data frames into a single data frame with an additional column indicating user type
+top_start_stations_combined <- rbind(top_start_stations_member, top_start_stations_casual) %>%
+  arrange(member_casual, desc(num_rides))
+
+# Plotting
+ggplot(top_start_stations_combined, aes(x = start_station_name, y = num_rides)) +
+  geom_bar(stat = "identity", aes(fill = member_casual)) +
+  labs(title = "Top Start Stations by User Type",
+       x = "Station Name",
+       y = "Number of Rides",
+       fill = "User Type") +
+  facet_wrap(~ member_casual, scales = "free", ncol = 2) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
