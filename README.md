@@ -77,7 +77,7 @@ Here's a summary of the analysis conducted:
 The complete roadmap is available in the file [Case Study Roadmap.pdf](Case%20Study%20Roadmap.pdf).
 
 ## Presentation
-The presentation containing visualizations and key findings is available in either [Understanding Cyclistic Bike Usage.ppt](Understanding%20Cyclistic%20Bike%20Usage.ppt) or [Understanding Cyclistic Bike Usage.pdf](Understanding%20Cyclistic%20Bike%20Usage.pdf).
+The presentation containing visualizations and key findings is available in either [Understanding Cyclistic Bike Usage.ppt](Understanding%20Cyclistic%20Bike%20Usage.pptx) or [Understanding Cyclistic Bike Usage.pdf](Understanding%20Cyclistic%20Bike%20Usage.pdf).
 
 ## Contributing
 Contributions are welcome! Here's how you can contribute:
