@@ -1,0 +1,2 @@
+### NOTE: 
+The data can be downloaded at [Divvy Data](https://divvy-tripdata.s3.amazonaws.com/index.html), and to run the R project place it in this path.
