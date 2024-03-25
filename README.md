@@ -30,6 +30,8 @@ Analyzing bike-share usage patterns at Cyclistic to optimize marketing strategie
 
 ## Usage
 The complete report is in the bike_share_report.html under the R_Files directory.
+### NOTE: 
+The data can be downloaded at [Divvy Data](https://divvy-tripdata.s3.amazonaws.com/index.html), and to run the R project place it in a directory called Data at the same level as the R_Files directory.
 
 ## Data
 The data used for this analysis was sourced from the Divvy Bikes System Data, specifically the Historical trip data available to the public. Key details about the data:
@@ -39,6 +41,7 @@ The data used for this analysis was sourced from the Divvy Bikes System Data, sp
 - Access: The data was available for public use according to the Divvy Data License Agreement and released on a monthly schedule.
 - Data Period: Data was imported for the first quarters of 2019 and 2020.
 - source: [Divvy Bikes](https://divvybikes.com/system-data)
+
 
 ## Analysis
 Here's a summary of the analysis conducted:
