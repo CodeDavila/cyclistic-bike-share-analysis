@@ -18,7 +18,7 @@ Analyzing bike-share usage patterns at Cyclistic to optimize marketing strategie
 ## Installation
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your-username/cyclistic-bike-share-analysis.git
+    git clone https://github.com/CodeDavila/cyclistic-bike-share-analysis.git
     ```
 2. Navigate to the project directory:
     ```bash
@@ -29,7 +29,7 @@ Analyzing bike-share usage patterns at Cyclistic to optimize marketing strategie
 5. Install any required R packages using `install.packages("package_name")`.
 
 ## Usage
-Describe how to run or use the analysis scripts written in R. Provide any necessary instructions for users to replicate your analysis or explore the data using R and RStudio.
+The complete report is in the bike_share_report.html under the R_Files directory.
 
 ## Data
 The data used for this analysis was sourced from the Divvy Bikes System Data, specifically the Historical trip data available to the public. Key details about the data:
@@ -38,9 +38,10 @@ The data used for this analysis was sourced from the Divvy Bikes System Data, sp
 - Data Processing: Trips taken by staff for servicing and inspection purposes were removed. Trips with durations below 60 seconds were filtered out.
 - Access: The data was available for public use according to the Divvy Data License Agreement and released on a monthly schedule.
 - Data Period: Data was imported for the first quarters of 2019 and 2020.
+- source: [Divvy Bikes](https://divvybikes.com/system-data)
 
 ## Analysis
-Now that the data has been processed, we can verify if we can address the business questions outlined in the case study. Here's a summary of the analysis conducted:
+Here's a summary of the analysis conducted:
 1. **Usage Frequency:** We calculated the usage frequency for annual members and casual riders by counting the number of rides for each member type.
 2. **Trip Duration:**
    - We calculated the average trip duration ("ride length") for each member type.
@@ -50,7 +51,20 @@ Now that the data has been processed, we can verify if we can address the busine
    - We analyzed whether annual members and casual riders tended to ride in different areas of the city by comparing the density of rides originating from each station between the two groups.
 
 ## Results
-Summarize the key findings and insights obtained from the analysis. Discuss any trends, patterns, or correlations discovered in the data.
+### Key Findings:
+- **Usage Frequency:**
+  - Annual members: 720,312 rides
+  - Casual riders: 67,877 rides
+  - **Insight:** Annual members use Cyclistic bikes significantly more frequently than casual riders.
+- **Trip Duration:**
+  - Casual riders: Average duration of approximately 89.55 minutes
+  - Annual members: Average duration of approximately 13.25 minutes
+  - **Insight:** Casual riders tend to take longer trips compared to annual members.
+- **Popular Routes and Stations:**
+  - Top start and end stations for annual members: Canal St & Adams St
+  - Top start and end stations for casual riders: Streeter Dr & Grand Ave
+  - **Insight:** Distinct preferences in station usage are observed between annual members and casual riders.
+
 
 ## Technologies Used
 - R
